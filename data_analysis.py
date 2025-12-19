@@ -1,111 +1,151 @@
-﻿"""
-MinervaBI – Business Intelligence Data Analysis
-Author: MinervaBI Startup Project
-Description:
-This script analyzes SME business data to extract actionable insights
-related to conversion, retention, efficiency, and trends.
-"""
+﻿import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tkinter as tk
 
-import pandas as pd
-
-# ===============================
-# 4.1 Data Sources & Collection
-# ===============================
-# Simulated integrated dataset from CRM, Analytics, and Surveys
-# (In real deployment, data comes from APIs and databases)
-
-file_path = r'C:\Users\For Students\Downloads\sme_business_data.csv'
-data = pd.read_csv(file_path)
-
-# Convert date column
-data["date"] = pd.to_datetime(data["date"])
+# Load data
+file_path = r'C:\Users\For Students\Downloads\bi_survey_data.csv'
+df = pd.read_csv(file_path)
 
 # ===============================
-# Basic Data Overview
+# Define graph functions
 # ===============================
-print("=== Data Overview ===")
-print(data.head())
-print("\nData Summary:")
-print(data.describe())
+def graph_1():
+    fig, ax = plt.subplots(figsize=(8,6))
+    role_distribution = df["respondent_role"].value_counts(normalize=True) * 100
+    sns.barplot(x=role_distribution.index, y=role_distribution.values, palette="viridis", ax=ax)
+    ax.set_title("Graph 1: Respondent Roles Distribution (%)")
+    ax.set_ylabel("Percentage")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 1")
+    plt.show()
 
-# ===============================
-# Key Performance Indicators (KPIs)
-# ===============================
+def graph_2():
+    fig, ax = plt.subplots(figsize=(8,6))
+    company_size_distribution = df["company_size"].value_counts(normalize=True) * 100
+    sns.barplot(x=company_size_distribution.index, y=company_size_distribution.values, palette="magma", ax=ax)
+    ax.set_title("Graph 2: Company Size Distribution (%)")
+    ax.set_ylabel("Percentage")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 2")
+    plt.show()
 
-data["profit"] = data["revenue"] - data["cost"]
+def graph_3():
+    fig, ax = plt.subplots(figsize=(10,6))
+    industry_distribution = df["industry_sector"].value_counts()
+    sns.barplot(x=industry_distribution.index, y=industry_distribution.values, palette="coolwarm", ax=ax)
+    ax.set_title("Graph 3: Industry Sector Distribution")
+    ax.set_ylabel("Number of Respondents")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 3")
+    plt.show()
 
-total_revenue = data["revenue"].sum()
-total_profit = data["profit"].sum()
-average_customers = data["customers"].mean()
+def graph_4():
+    fig, ax = plt.subplots(figsize=(8,6))
+    ab_testing = df.groupby("dashboard_version").agg({
+        "usability_score": "mean",
+        "conversion_impact": "mean"
+    })
+    ab_testing.plot(kind="bar", ax=ax, color=["#1f77b4", "#ff7f0e"])
+    ax.set_title("Graph 4: Dashboard A/B Testing Results")
+    ax.set_ylabel("Average Score")
+    plt.xticks(rotation=0)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 4")
+    plt.show()
 
-print("\n=== Key Business Metrics ===")
-print(f"Total Revenue: ${total_revenue:,.2f}")
-print(f"Total Profit: ${total_profit:,.2f}")
-print(f"Average Customers: {average_customers:.0f}")
+def graph_5():
+    fig, ax = plt.subplots(figsize=(8,6))
+    trend_summary = df.groupby("company_size").agg({"adoption_intent": "mean"})
+    trend_summary["adoption_intent"].plot(kind="bar", color="#2ca02c", ax=ax)
+    ax.set_title("Graph 5: Adoption Intent by Company Size")
+    ax.set_ylabel("Average Adoption Intent")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 5")
+    plt.show()
 
-# ===============================
-# 4.2 Findings & Insights
-# ===============================
-
-# A/B Testing: Dashboard Simplicity vs Complex Design
-ab_test_results = data.groupby("dashboard_version").agg({
-    "conversion_rate": "mean",
-    "retention_rate": "mean"
-})
-
-print("\n=== A/B Testing Results ===")
-print(ab_test_results)
-
-conversion_lift = (
-    ab_test_results.loc["simplified", "conversion_rate"]
-    - ab_test_results.loc["complex", "conversion_rate"]
-) * 100
-
-print(f"\nConversion Lift from Simplified Dashboards: {conversion_lift:.2f}%")
-
-# Time savings from automation
-average_time_saved = data["hours_saved_per_week"].mean()
-print(f"Average Time Saved per SME per Week: {average_time_saved:.1f} hours")
-
-# ===============================
-# 4.3 Trend and Risk Analysis
-# ===============================
-
-# Monthly trends
-monthly_trends = data.resample("M", on="date").agg({
-    "revenue": "sum",
-    "customers": "sum",
-    "conversion_rate": "mean",
-    "retention_rate": "mean"
-})
-
-print("\n=== Monthly Trends ===")
-print(monthly_trends)
-
-# Risk indicators
-churn_risk = data[data["retention_rate"] < 0.7]
-high_risk_regions = churn_risk["region"].value_counts()
-
-print("\n=== Churn Risk Regions ===")
-print(high_risk_regions)
-
-# ===============================
-# 5. Results and Discussion
-# ===============================
-
-decision_efficiency_gain = (
-    data["hours_saved_per_week"].mean() / 40
-) * 100
-
-print("\n=== Decision-Making Efficiency ===")
-print(f"Estimated Efficiency Improvement: {decision_efficiency_gain:.2f}%")
+def graph_6():
+    fig, ax = plt.subplots(figsize=(8,6))
+    risk_factors = df[df["privacy_concern"] == "high"]
+    risk_summary = risk_factors["company_size"].value_counts()
+    sns.barplot(x=risk_summary.index, y=risk_summary.values, palette="Reds", ax=ax)
+    ax.set_title("Graph 6: High Privacy Concern by Company Size")
+    ax.set_ylabel("Number of Companies")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    fig.canvas.manager.set_window_title("Graph 6")
+    plt.show()
 
 # ===============================
-# Export BI Reports
+# Tkinter GUI
 # ===============================
+root = tk.Tk()
+root.title("📊 MinervaBI Graph Viewer")
+root.geometry("350x450")
+root.configure(bg="#2C3E50")
 
-monthly_trends.to_csv("monthly_trend_report.csv")
-ab_test_results.to_csv("ab_testing_report.csv")
-high_risk_regions.to_csv("risk_analysis_report.csv")
+# Header
+header_frame = tk.Frame(root, bg="#34495E", pady=15)
+header_frame.pack(fill="x")
+header_label = tk.Label(
+    header_frame, 
+    text="MinervaBI Graph Viewer", 
+    font=("Helvetica", 18, "bold"), 
+    fg="white", 
+    bg="#34495E"
+)
+header_label.pack()
 
-print("\nBI reports generated successfully.")
+# Instruction
+instr_label = tk.Label(
+    root, 
+    text="Click a button to view a graph", 
+    font=("Helvetica", 12), 
+    fg="white", 
+    bg="#2C3E50"
+)
+instr_label.pack(pady=15)
+
+# Buttons
+button_frame = tk.Frame(root, bg="#2C3E50")
+button_frame.pack(pady=10)
+
+buttons = [
+    ("Graph 1", graph_1),
+    ("Graph 2", graph_2),
+    ("Graph 3", graph_3),
+    ("Graph 4", graph_4),
+    ("Graph 5", graph_5),
+    ("Graph 6", graph_6)
+]
+
+for text, func in buttons:
+    b = tk.Button(
+        button_frame, 
+        text=text, 
+        command=func, 
+        font=("Helvetica", 12, "bold"), 
+        bg="#1ABC9C", 
+        fg="white", 
+        activebackground="#16A085", 
+        activeforeground="white",
+        width=25,
+        pady=5
+    )
+    b.pack(pady=5)
+
+# Footer
+footer_label = tk.Label(
+    root, 
+    text="MinervaBI Project – Data Visualization", 
+    font=("Helvetica", 10), 
+    fg="white", 
+    bg="#2C3E50"
+)
+footer_label.pack(side="bottom", pady=10)
+
+root.mainloop()
